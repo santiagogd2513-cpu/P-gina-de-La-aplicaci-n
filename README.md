@@ -43,14 +43,14 @@ actualizan la versión ya instalada.
 
 ## Página web
 
-La carpeta `site/` contiene la página de descarga (modo oscuro). Se publica con GitHub Pages mediante
-`.github/workflows/pages.yml` cada vez que cambia algo dentro de `site/`.
+**https://santiagogd2513-cpu.github.io/P-gina-de-La-aplicaci-n/**
+
+La carpeta `site/` contiene la página de descarga (modo oscuro). Cada vez que cambia algo dentro de
+`site/`, `.github/workflows/pages.yml` la copia a la rama `gh-pages`, desde donde GitHub Pages la publica.
 
 Los botones enlazan a `releases/latest/download/LunaMistica.apk` y
 `releases/latest/download/LunaMistica-Setup.exe`: cada compilación sube esos archivos con nombre fijo a
 la última versión publicada, así que la página siempre descarga lo más nuevo sin tocarla.
-
-Para activarla por primera vez: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
 ## Compilar en tu computadora
 
