@@ -65,7 +65,7 @@ import kotlinx.datetime.LocalDate
 
 /** Registro obligatorio en dos pasos que se muestra la primera vez que se abre la app. */
 @Composable
-fun RegistrationScreen(onRegistered: () -> Unit) {
+fun RegistrationScreen(onRegistered: () -> Unit, onLogin: () -> Unit) {
     // Paso 1: cuenta
     var email by remember { mutableStateOf("") }
     var country by remember { mutableStateOf(Countries.default) }
@@ -86,6 +86,7 @@ fun RegistrationScreen(onRegistered: () -> Unit) {
     var submitted2 by remember { mutableStateOf(false) }
 
     var step by remember { mutableStateOf(1) }
+    val existingAccount = remember { AccountRepository.isRegistered() }
     val focus = LocalFocusManager.current
     val time by rememberShaderTime(speed = 0.6f)
     val today = remember { today() }
@@ -252,6 +253,18 @@ fun RegistrationScreen(onRegistered: () -> Unit) {
                     Text("Siguiente", style = MaterialTheme.typography.titleMedium)
                 }
                 if (submitted1 && !step1Valid) ErrorHint()
+                if (existingAccount) {
+                    Text(
+                        "Ya hay una cuenta en este dispositivo. Si creas una nueva, la anterior se reemplazará.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    )
+                }
+                TextButton(onClick = onLogin, modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+                    Text("¿Ya tienes una cuenta? Inicia sesión")
+                }
             } else if (step == 2) {
                 RegistrationField(
                     value = firstName,

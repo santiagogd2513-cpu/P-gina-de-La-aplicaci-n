@@ -76,6 +76,8 @@ object RegistrationRules {
     fun genderError(gender: String?): String? = if (gender.isNullOrBlank()) "Elige una opción." else null
 }
 
+enum class LoginResult { Success, NoAccount, WrongPassword }
+
 /** Guarda la cuenta en el dispositivo. La contraseña nunca se guarda en texto: solo su hash con sal. */
 object AccountRepository {
     private const val KEY_EMAIL = "account_email"
@@ -88,6 +90,7 @@ object AccountRepository {
     private const val KEY_BIRTH_DATE = "account_birth_date"
     private const val KEY_GENDER = "account_gender"
     private const val KEY_TERMS_VERSION = "terms_accepted_version"
+    private const val KEY_SESSION = "session_active"
     private const val KEY_TERMS_DATE = "terms_accepted_date"
     private const val ITERATIONS = 10_000
 
@@ -120,6 +123,33 @@ object AccountRepository {
         KeyValueStore.putString(KEY_GENDER, profile.gender)
         // Se guarda al final: marca el registro como completo.
         KeyValueStore.putString(KEY_FIRST_NAME, profile.firstName.trim())
+        KeyValueStore.putString(KEY_SESSION, "1")
+    }
+
+    /** Sesión abierta. Si la clave no existe (cuentas creadas antes de esta función) cuenta como abierta. */
+    fun isLoggedIn(): Boolean = KeyValueStore.getString(KEY_SESSION) != "0"
+
+    fun logout() {
+        KeyValueStore.putString(KEY_SESSION, "0")
+    }
+
+    /** Comprueba correo y contraseña contra la cuenta guardada en este dispositivo. */
+    fun login(email: String, password: String): LoginResult {
+        val result = verifyLogin(
+            storedEmail = KeyValueStore.getString(KEY_EMAIL),
+            storedHash = KeyValueStore.getString(KEY_HASH),
+            salt = KeyValueStore.getString(KEY_SALT),
+            email = email,
+            password = password,
+        )
+        if (result == LoginResult.Success) KeyValueStore.putString(KEY_SESSION, "1")
+        return result
+    }
+
+    fun verifyLogin(storedEmail: String?, storedHash: String?, salt: String?, email: String, password: String): LoginResult {
+        if (storedEmail == null || storedHash == null || salt == null) return LoginResult.NoAccount
+        if (storedEmail != email.trim().lowercase()) return LoginResult.NoAccount
+        return if (hashPassword(password, salt) == storedHash) LoginResult.Success else LoginResult.WrongPassword
     }
 
     /** true si se aceptó la versión actual de los Términos y la Política de Privacidad. */

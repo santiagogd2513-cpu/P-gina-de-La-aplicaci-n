@@ -81,4 +81,17 @@ class AccountTest {
         assertNull(RegistrationRules.confirmError("abc12345", "abc12345"))
         assertNotNull(RegistrationRules.confirmError("abc12345", "abc12346"))
     }
+
+    @Test
+    fun loginVerification() {
+        val salt = "abc"
+        val hash = AccountRepository.hashPassword("lunita2024", salt)
+        val stored = "ana@correo.com"
+        assertEquals(LoginResult.Success, AccountRepository.verifyLogin(stored, hash, salt, "ana@correo.com", "lunita2024"))
+        // El correo no distingue mayúsculas ni espacios
+        assertEquals(LoginResult.Success, AccountRepository.verifyLogin(stored, hash, salt, " Ana@Correo.com ", "lunita2024"))
+        assertEquals(LoginResult.WrongPassword, AccountRepository.verifyLogin(stored, hash, salt, "ana@correo.com", "Lunita2024"))
+        assertEquals(LoginResult.NoAccount, AccountRepository.verifyLogin(stored, hash, salt, "otra@correo.com", "lunita2024"))
+        assertEquals(LoginResult.NoAccount, AccountRepository.verifyLogin(null, null, null, "ana@correo.com", "lunita2024"))
+    }
 }

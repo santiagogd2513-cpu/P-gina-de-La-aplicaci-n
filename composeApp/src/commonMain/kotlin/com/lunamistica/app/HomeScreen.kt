@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,10 +44,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HomeScreen(navigate: (Screen) -> Unit) {
+fun HomeScreen(navigate: (Screen) -> Unit, onLogout: () -> Unit) {
     val time by rememberShaderTime()
     val moon = remember { Moon.phase() }
     val uriHandler = LocalUriHandler.current
+    val firstName = remember { AccountRepository.current()?.firstName.orEmpty() }
+    var confirmLogout by remember { mutableStateOf(false) }
+
+    if (confirmLogout) {
+        AlertDialog(
+            onDismissRequest = { confirmLogout = false },
+            title = { Text("Cerrar sesión") },
+            text = { Text("¿Quieres cerrar sesión? Para volver a entrar necesitarás tu correo y tu contraseña.") },
+            confirmButton = {
+                TextButton(onClick = { confirmLogout = false; onLogout() }) { Text("Cerrar sesión") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmLogout = false }) { Text("Cancelar") }
+            },
+        )
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(160.dp),
@@ -61,6 +80,14 @@ fun HomeScreen(navigate: (Screen) -> Unit) {
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                 )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        if (firstName.isNotBlank()) "Hola, $firstName 🌙" else "Hola 🌙",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = { confirmLogout = true }) { Text("Cerrar sesión") }
+                }
                 Text(
                     "Tu espacio de energía, intuición y bienestar ✨",
                     style = MaterialTheme.typography.bodyLarge,

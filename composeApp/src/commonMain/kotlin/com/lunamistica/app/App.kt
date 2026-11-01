@@ -31,19 +31,42 @@ fun App() {
     LunaTheme {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             var registered by remember { mutableStateOf(AccountRepository.isRegistered()) }
+            var loggedIn by remember { mutableStateOf(AccountRepository.isLoggedIn()) }
             var termsAccepted by remember { mutableStateOf(AccountRepository.hasAcceptedCurrentTerms()) }
+            // Si ya hay una cuenta en el dispositivo se muestra "Iniciar sesión"; si no, el registro.
+            var showLogin by remember { mutableStateOf(registered) }
             when {
-                !registered -> RegistrationScreen(onRegistered = { registered = true; termsAccepted = true })
+                !registered || !loggedIn ->
+                    if (showLogin) {
+                        LoginScreen(
+                            onLoggedIn = {
+                                loggedIn = true
+                                termsAccepted = AccountRepository.hasAcceptedCurrentTerms()
+                            },
+                            onRegister = { showLogin = false },
+                        )
+                    } else {
+                        RegistrationScreen(
+                            onRegistered = { registered = true; loggedIn = true; termsAccepted = true },
+                            onLogin = { showLogin = true },
+                        )
+                    }
                 // Quien ya tenía cuenta (o si cambian los textos) debe aceptar antes de seguir.
                 !termsAccepted -> TermsUpdateScreen(onAccepted = { termsAccepted = true })
-                else -> MainNavigation()
+                else -> MainNavigation(
+                    onLogout = {
+                        AccountRepository.logout()
+                        loggedIn = false
+                        showLogin = true
+                    },
+                )
             }
         }
     }
 }
 
 @Composable
-private fun MainNavigation() {
+private fun MainNavigation(onLogout: () -> Unit) {
     val stack = remember { mutableStateListOf<Screen>(Screen.Home) }
     val navigate: (Screen) -> Unit = { stack.add(it) }
     val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
@@ -51,7 +74,7 @@ private fun MainNavigation() {
     PlatformBackHandler(enabled = stack.size > 1, onBack = back)
 
     when (val screen = stack.last()) {
-        Screen.Home -> HomeScreen(navigate)
+        Screen.Home -> HomeScreen(navigate, onLogout)
         Screen.Tarot -> TarotScreen(back)
         Screen.Pendulum -> PendulumScreen(back)
         Screen.Baths -> RitualListScreen(Categories.baths, Rituals.baths, back, navigate)
