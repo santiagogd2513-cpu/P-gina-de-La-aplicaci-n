@@ -182,6 +182,7 @@ private fun YesNoPendulum() {
     val scope = rememberCoroutineScope()
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf<PendulumAnswer?>(null) }
+    var answerText by remember { mutableStateOf("") }
     var consulting by remember { mutableStateOf(false) }
 
     Column(Modifier.padding(horizontal = 16.dp)) {
@@ -207,6 +208,11 @@ private fun YesNoPendulum() {
                     controller.swingTo(Swings.search, 800)
                     delay(2600)
                     val result = PendulumAnswer.entries[Random.nextInt(PendulumAnswer.entries.size)]
+                    answerText = when (result) {
+                        PendulumAnswer.Yes -> Variety.pendulumYes
+                        PendulumAnswer.No -> Variety.pendulumNo
+                        PendulumAnswer.Maybe -> Variety.pendulumMaybe
+                    }.random()
                     answer = result
                     consulting = false
                     controller.swingTo(result.swing, 1600)
@@ -234,7 +240,7 @@ private fun YesNoPendulum() {
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
-                    Text(a.detail, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+                    Text(answerText, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
                 }
             }
         }
@@ -249,22 +255,24 @@ private fun ChakraAlignment() {
     var current by remember { mutableStateOf<Int?>(null) }
     var harmonizing by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
+    // Afirmación y práctica elegidas al azar para cada chakra en cada lectura.
+    val affirmations = remember { mutableStateListOf<String>().apply { Chakras.all.forEach { add(it.affirmation) } } }
+    val practices = remember { mutableStateListOf<String>().apply { Chakras.all.forEach { add(it.practice) } } }
 
     fun scan() {
         busy = true
         scope.launch {
             harmonizing = false
             for (i in results.indices) results[i] = null
+            Chakras.all.forEachIndexed { i, c ->
+                affirmations[i] = (listOf(c.affirmation) + Variety.chakraAffirmations[c.name].orEmpty()).random()
+                practices[i] = (listOf(c.practice) + Variety.chakraPractices[c.name].orEmpty()).random()
+            }
             for (i in Chakras.all.indices) {
                 current = i
                 controller.swingTo(Swings.search, 600)
                 delay(900)
-                val roll = Random.nextFloat()
-                val state = when {
-                    roll < 0.55f -> ChakraState.Balanced
-                    roll < 0.8f -> ChakraState.Blocked
-                    else -> ChakraState.Overactive
-                }
+                val state = ChakraState.entries.random()
                 controller.swingTo(state.swing, 900)
                 delay(900)
                 results[i] = state
@@ -311,7 +319,7 @@ private fun ChakraAlignment() {
         )
         Text(
             when {
-                active != null && harmonizing -> "Armonizando ${active.name}… Repite: “${active.affirmation}”"
+                active != null && harmonizing -> "Armonizando ${active.name}… Repite: “${affirmations[current!!]}”"
                 active != null -> "Leyendo chakra ${active.name} (${active.sanskrit})…"
                 scanned -> "Lectura completa"
                 else -> "Pulsa el botón para comenzar"
@@ -347,6 +355,7 @@ private fun ChakraAlignment() {
                 )
             } else {
                 pending.forEach { chakra ->
+                    val idx = Chakras.all.indexOf(chakra)
                     Card(
                         shape = RoundedCornerShape(18.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
@@ -354,9 +363,9 @@ private fun ChakraAlignment() {
                     ) {
                         Column(Modifier.padding(14.dp)) {
                             Text(chakra.name, fontWeight = FontWeight.Bold, color = chakra.color, style = MaterialTheme.typography.titleMedium)
-                            Text("Afirmación: “${chakra.affirmation}”", style = MaterialTheme.typography.bodyMedium)
+                            Text("Afirmación: “${affirmations[idx]}”", style = MaterialTheme.typography.bodyMedium)
                             Text("Piedras: ${chakra.stone}", style = MaterialTheme.typography.bodyMedium)
-                            Text("Práctica: ${chakra.practice}", style = MaterialTheme.typography.bodyMedium)
+                            Text("Práctica: ${practices[idx]}", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }

@@ -66,6 +66,8 @@ fun RitualListScreen(
     onBack: () -> Unit,
     navigate: (Screen) -> Unit,
 ) {
+    // El orden de la lista cambia cada vez que se abre.
+    val shuffledRituals = remember(rituals) { rituals.shuffled() }
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = WindowInsets.navigationBars.asPaddingValues(),
@@ -75,13 +77,13 @@ fun RitualListScreen(
         item {
             val moon = remember { Moon.phase() }
             Text(
-                "${moon.emoji} Hoy hay ${moon.name.lowercase()}. ${moon.advice}",
+                "${moon.emoji} Hoy hay ${moon.name.lowercase()}. ${remember { moon.randomAdvice() }}",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        items(rituals, key = { it.id }) { ritual ->
+        items(shuffledRituals, key = { it.id }) { ritual ->
             Box(Modifier.padding(horizontal = 16.dp)) {
                 EmojiListItem(ritual.emoji, ritual.title, ritual.purpose) {
                     navigate(Screen.RitualDetail(ritual, category.effect))
@@ -161,6 +163,8 @@ fun GuidedRitualScreen(ritual: Ritual, effect: ShaderEffect, onBack: () -> Unit)
     var step by remember { mutableIntStateOf(0) }
     val total = ritual.steps.size
     val finished = step >= total
+    val doneTitle = remember { Variety.ritualDoneTitles.random() }
+    val doneText = remember { Variety.ritualDone.random() }
 
     Box(Modifier.fillMaxSize()) {
         ShaderSurface(effect, { time }, { null }, Modifier.matchParentSize())
@@ -182,14 +186,14 @@ fun GuidedRitualScreen(ritual: Ritual, effect: ShaderEffect, onBack: () -> Unit)
                     if (s >= total) {
                         Text("✨", fontSize = 56.sp)
                         Text(
-                            "Ritual completado",
+                            doneTitle,
                             color = Color.White,
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "Agradece al universo por lo recibido. Así es, y así será.",
+                            doneText,
                             color = Color.White.copy(alpha = 0.9f),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
@@ -235,6 +239,8 @@ fun GuidedRitualScreen(ritual: Ritual, effect: ShaderEffect, onBack: () -> Unit)
 @Composable
 fun PrayerListScreen(onBack: () -> Unit, navigate: (Screen) -> Unit) {
     val category = Categories.prayers
+    val shuffledPrayers = remember { Prayers.all.shuffled() }
+    val prayerIntro = remember { Variety.prayerIntros.random() }
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = WindowInsets.navigationBars.asPaddingValues(),
@@ -243,13 +249,13 @@ fun PrayerListScreen(onBack: () -> Unit, navigate: (Screen) -> Unit) {
         item { BannerHeader(category.effect, category.emoji, category.title, category.subtitle, onBack) }
         item {
             Text(
-                "Elige una oración, enciende tu vela y léela con calma y fe.",
+                prayerIntro,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        items(Prayers.all, key = { it.id }) { prayer ->
+        items(shuffledPrayers, key = { it.id }) { prayer ->
             Box(Modifier.padding(horizontal = 16.dp)) {
                 EmojiListItem(prayer.emoji, prayer.title, prayer.intention) { navigate(Screen.PrayerDetail(prayer)) }
             }

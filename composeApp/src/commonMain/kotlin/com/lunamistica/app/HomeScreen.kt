@@ -51,6 +51,11 @@ fun HomeScreen(navigate: (Screen) -> Unit, onLogout: () -> Unit) {
     val moon = remember { Moon.phase() }
     val uriHandler = LocalUriHandler.current
     val firstName = remember { AccountRepository.current()?.firstName.orEmpty() }
+    // Saludo, frase, consejo lunar y orden de las categorías cambian cada vez que se abre el inicio.
+    val greeting = remember { Variety.greetings.random() }
+    val tagline = remember { Variety.taglines.random() }
+    val moonAdvice = remember { moon.randomAdvice() }
+    val categories = remember { Categories.all.shuffled() }
     var confirmLogout by remember { mutableStateOf(false) }
 
     if (confirmLogout) {
@@ -84,14 +89,14 @@ fun HomeScreen(navigate: (Screen) -> Unit, onLogout: () -> Unit) {
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        if (firstName.isNotBlank()) "Hola, $firstName 🌙" else "Hola 🌙",
+                        if (firstName.isNotBlank()) "$greeting, $firstName 🌙" else "$greeting 🌙",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(onClick = { confirmLogout = true }) { Text("Cerrar sesión") }
                 }
                 Text(
-                    "Tu espacio de energía, intuición y bienestar ✨",
+                    tagline,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -147,7 +152,7 @@ fun HomeScreen(navigate: (Screen) -> Unit, onLogout: () -> Unit) {
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                         Text(
-                            moon.advice,
+                            moonAdvice,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
@@ -156,7 +161,7 @@ fun HomeScreen(navigate: (Screen) -> Unit, onLogout: () -> Unit) {
             }
         }
 
-        items(Categories.all, key = { it.title }) { category ->
+        items(categories, key = { it.title }) { category ->
             Box(
                 Modifier
                     .fillMaxWidth()

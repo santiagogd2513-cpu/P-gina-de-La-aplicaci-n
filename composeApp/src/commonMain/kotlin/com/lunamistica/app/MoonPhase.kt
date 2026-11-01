@@ -7,7 +7,10 @@ import kotlinx.datetime.todayIn
 
 fun today(): LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-data class MoonPhase(val name: String, val emoji: String, val advice: String, val ageDays: Double)
+data class MoonPhase(val name: String, val emoji: String, val advice: String, val ageDays: Double) {
+    /** Consejo elegido al azar entre el base y los adicionales de esta fase. */
+    fun randomAdvice(): String = (listOf(advice) + Variety.moonAdvice[name].orEmpty()).random()
+}
 
 object Moon {
     private const val SYNODIC_MONTH = 29.530588853

@@ -75,7 +75,7 @@ fun NumerologyScreen(onBack: () -> Unit) {
         val currentYear = today().year
         fun meaning(label: String, n: Int): NumberResult {
             val mng = Numerology.meanings.getValue(n)
-            return NumberResult(label, n, mng.title, mng.text)
+            return NumberResult(label, n, mng.title, Variety.numerologyText(n, mng.text))
         }
         val personalYear = Numerology.personalYear(d, m, currentYear)
         results = buildList {
@@ -89,7 +89,7 @@ fun NumerologyScreen(onBack: () -> Unit) {
                     "Año personal $currentYear",
                     personalYear,
                     "Tu energía este año",
-                    Numerology.personalYearMeanings.getValue(personalYear),
+                    Variety.personalYearText(personalYear, Numerology.personalYearMeanings.getValue(personalYear)),
                 )
             )
         }

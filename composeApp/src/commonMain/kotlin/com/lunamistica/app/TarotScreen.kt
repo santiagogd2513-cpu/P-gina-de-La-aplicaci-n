@@ -59,7 +59,8 @@ private val CardShape = RoundedCornerShape(14.dp)
 private val Gold = Color(0xFFF2C66D)
 
 private fun drawSpread(spread: Spread): List<DrawnCard> {
-    val random = if (spread == Spread.Daily) Random(today().toEpochDays()) else Random.Default
+    // Todas las tiradas, incluida la carta del día, son aleatorias cada vez.
+    val random = Random.Default
     val cards = TarotDeck.majorArcana.shuffled(random)
     return spread.positions.mapIndexed { i, position ->
         DrawnCard(cards[i], reversed = random.nextFloat() < 0.3f, position = position)
@@ -284,7 +285,7 @@ private fun Interpretation(d: DrawnCard, modifier: Modifier) {
             )
             Text(d.card.keywords, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.height(8.dp))
-            Text(if (d.reversed) d.card.reversed else d.card.upright, style = MaterialTheme.typography.bodyMedium)
+            Text(d.message, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

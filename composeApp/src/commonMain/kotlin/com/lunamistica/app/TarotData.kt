@@ -98,4 +98,10 @@ enum class Spread(val label: String, val positions: List<String>) {
     Love("Amor", listOf("Tú", "La otra persona", "La relación")),
 }
 
-data class DrawnCard(val card: TarotCard, val reversed: Boolean, val position: String)
+data class DrawnCard(
+    val card: TarotCard,
+    val reversed: Boolean,
+    val position: String,
+    /** Mensaje elegido al azar al sacar la carta (no cambia mientras se muestra). */
+    val message: String = Variety.tarotMessage(card, reversed),
+)
