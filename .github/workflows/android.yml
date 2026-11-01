@@ -3,6 +3,8 @@ name: Build APK
 on:
   push:
     branches: [ "**" ]
+    # Los cambios solo en la página web no recompilan la app.
+    paths-ignore: [ "site/**", ".github/workflows/pages.yml" ]
   workflow_dispatch:
 
 permissions:
@@ -67,6 +69,7 @@ jobs:
   release:
     name: Publicar en Releases
     needs: [ android, windows ]
+    if: github.ref == 'refs/heads/claude/android-multiplatform-app-jjj5yn' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -74,16 +77,25 @@ jobs:
           path: dist
           merge-multiple: true
 
+      # Copias con nombre fijo: la página web enlaza a
+      # .../releases/latest/download/LunaMistica.apk y LunaMistica-Setup.exe,
+      # que siempre apuntan a la versión más reciente.
+      - name: Nombres fijos para la página web
+        run: |
+          cp dist/LunaMistica-${{ github.run_number }}.apk dist/LunaMistica.apk
+          cp dist/LunaMistica-Setup-${{ github.run_number }}.exe dist/LunaMistica-Setup.exe
+
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: luna-${{ github.run_number }}
           name: Luna Mística #${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          prerelease: true
+          prerelease: false
+          make_latest: true
           body: |
             Versión de prueba generada automáticamente desde `${{ github.ref_name }}` (${{ github.sha }}).
 
-            **Android:** descarga `LunaMistica-${{ github.run_number }}.apk` en el teléfono, permite "instalar apps de origen desconocido" y ábrelo.
+            **Android:** descarga `LunaMistica.apk` en el teléfono, permite "instalar apps de origen desconocido" y ábrelo.
 
-            **Windows:** descarga `LunaMistica-Setup-${{ github.run_number }}.exe` y ejecútalo. Si Windows muestra "Windows protegió su PC", pulsa **Más información → Ejecutar de todas formas** (el instalador no está firmado con un certificado de pago).
+            **Windows:** descarga `LunaMistica-Setup.exe` y ejecútalo. Si Windows muestra "Windows protegió su PC", pulsa **Más información → Ejecutar de todas formas** (el instalador no está firmado con un certificado de pago).
           files: dist/*

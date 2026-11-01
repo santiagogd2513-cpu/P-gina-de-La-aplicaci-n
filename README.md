@@ -41,6 +41,17 @@ Cada push también genera un instalador para Windows 10/11 en **Releases**:
 No necesita permisos de administrador ni tener Java instalado (va incluido). Los instaladores nuevos
 actualizan la versión ya instalada.
 
+## Página web
+
+La carpeta `site/` contiene la página de descarga (modo oscuro). Se publica con GitHub Pages mediante
+`.github/workflows/pages.yml` cada vez que cambia algo dentro de `site/`.
+
+Los botones enlazan a `releases/latest/download/LunaMistica.apk` y
+`releases/latest/download/LunaMistica-Setup.exe`: cada compilación sube esos archivos con nombre fijo a
+la última versión publicada, así que la página siempre descarga lo más nuevo sin tocarla.
+
+Para activarla por primera vez: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
 ## Compilar en tu computadora
 
 Requisitos: JDK 17+ y Android SDK (Android Studio lo instala).
