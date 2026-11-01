@@ -96,13 +96,35 @@ dependencies {
     "coreLibraryDesugaring"("com.android.tools:desugar_jdk_libs:2.1.3")
 }
 
+// Versión de la app de escritorio (MAYOR.MENOR.COMPILACIÓN). En GitHub Actions se pasa
+// -PappVersion=5.0.<número de compilación> para que cada instalador actualice al anterior.
+val desktopVersion = (project.findProperty("appVersion") as String?) ?: "5.0.0"
+
 compose.desktop {
     application {
         mainClass = "com.lunamistica.app.MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "LunaMistica"
-            packageVersion = "2.0.0"
+            targetFormats(TargetFormat.Exe, TargetFormat.Msi, TargetFormat.Dmg, TargetFormat.Deb)
+            packageName = "Luna Mistica"
+            packageVersion = desktopVersion
+            description = "Tarot, péndulo, baños, rezos, limpiezas y numerología"
+            vendor = "Luna Mística"
+            // Módulos de Java incluidos en el instalador (java.prefs guarda la cuenta del registro).
+            modules("java.instrument", "java.management", "java.naming", "java.prefs", "jdk.unsupported")
+
+            windows {
+                iconFile.set(project.file("icons/icon.ico"))
+                menu = true
+                menuGroup = "Luna Mistica"
+                shortcut = true
+                dirChooser = true
+                perUserInstall = true
+                // No cambiar: permite que un instalador nuevo actualice la versión instalada.
+                upgradeUuid = "7d74d957-ea6c-4082-99ef-2b19976b40ab"
+            }
+            linux {
+                iconFile.set(project.file("icons/icon.png"))
+            }
         }
     }
 }

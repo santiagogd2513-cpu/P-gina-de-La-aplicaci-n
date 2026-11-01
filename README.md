@@ -29,6 +29,18 @@ Cada push compila el APK automáticamente con GitHub Actions:
 > Funciona desde Android 7. Los fondos animados completos requieren Android 13 o superior;
 > en versiones anteriores se muestra un degradado animado más sencillo.
 
+## Instalar en Windows
+
+Cada push también genera un instalador para Windows 10/11 en **Releases**:
+
+1. Descarga `LunaMistica-Setup-N.exe`.
+2. Ejecútalo. Si aparece "Windows protegió su PC", pulsa **Más información → Ejecutar de todas formas**
+   (el instalador no está firmado con un certificado de pago).
+3. Sigue el asistente; se crea un acceso directo en el escritorio y en el menú Inicio.
+
+No necesita permisos de administrador ni tener Java instalado (va incluido). Los instaladores nuevos
+actualizan la versión ya instalada.
+
 ## Compilar en tu computadora
 
 Requisitos: JDK 17+ y Android SDK (Android Studio lo instala).
@@ -37,6 +49,7 @@ Requisitos: JDK 17+ y Android SDK (Android Studio lo instala).
 ./gradlew :composeApp:assembleDebug     # APK -> composeApp/build/outputs/apk/debug/
 ./gradlew :composeApp:installDebug      # instala en un teléfono conectado por USB
 ./gradlew :composeApp:run               # versión de escritorio
+./gradlew :composeApp:packageExe        # instalador .exe (ejecutar en Windows)
 ./gradlew :composeApp:desktopTest       # pruebas (shaders, numerología, fase lunar)
 ```
 
