@@ -47,10 +47,13 @@ private data class NumberResult(val label: String, val number: Int, val title: S
 
 @Composable
 fun NumerologyScreen(onBack: () -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var day by remember { mutableStateOf("") }
-    var month by remember { mutableStateOf("") }
-    var year by remember { mutableStateOf("") }
+    // Se rellena con los datos del registro; la persona puede cambiarlos.
+    val account = remember { AccountRepository.current() }
+    val birth = account?.birthDate
+    var name by remember { mutableStateOf(account?.fullName.orEmpty()) }
+    var day by remember { mutableStateOf(birth?.dayOfMonth?.toString().orEmpty()) }
+    var month by remember { mutableStateOf(birth?.monthNumber?.toString().orEmpty()) }
+    var year by remember { mutableStateOf(birth?.year?.toString().orEmpty()) }
     var error by remember { mutableStateOf<String?>(null) }
     var results by remember { mutableStateOf<List<NumberResult>>(emptyList()) }
     val focus = LocalFocusManager.current

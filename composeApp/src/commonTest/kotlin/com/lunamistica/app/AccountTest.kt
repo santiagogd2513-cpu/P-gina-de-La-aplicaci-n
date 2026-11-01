@@ -1,5 +1,6 @@
 package com.lunamistica.app
 
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -42,12 +43,33 @@ class AccountTest {
     @Test
     fun phoneRules() {
         assertNull(RegistrationRules.phoneError("3001234567"))
-        assertNull(RegistrationRules.phoneError("+57 300 123 4567"))
+        assertNull(RegistrationRules.phoneError("300 123 4567"))
         assertNull(RegistrationRules.phoneError("(55) 1234-5678"))
         assertNotNull(RegistrationRules.phoneError(""))
         assertNotNull(RegistrationRules.phoneError("12345"))
         assertNotNull(RegistrationRules.phoneError("300abc4567"))
-        assertNotNull(RegistrationRules.phoneError("300+1234567"))
+        assertNotNull(RegistrationRules.phoneError("+57 3001234567"))
+    }
+
+    @Test
+    fun fullPhoneCombinesCountryCode() {
+        val c = Credentials("a@b.co", Countries.default, "316 010 0727", "abc12345")
+        assertEquals("+57 3160100727", c.fullPhone)
+    }
+
+    @Test
+    fun profileRules() {
+        val today = LocalDate(2026, 11, 1)
+        assertNull(RegistrationRules.nameError("María José", "nombre"))
+        assertNull(RegistrationRules.nameError("O'Neil-Peña", "apellido"))
+        assertNotNull(RegistrationRules.nameError("", "nombre"))
+        assertNotNull(RegistrationRules.nameError("Ana3", "nombre"))
+        assertNull(RegistrationRules.birthDateError("15", "6", "1990", today))
+        assertNotNull(RegistrationRules.birthDateError("", "6", "1990", today))
+        assertNotNull(RegistrationRules.birthDateError("31", "2", "1990", today))
+        assertNotNull(RegistrationRules.birthDateError("2", "11", "2026", today))
+        assertNull(RegistrationRules.genderError("Femenino"))
+        assertNotNull(RegistrationRules.genderError(null))
     }
 
     @Test

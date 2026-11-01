@@ -8,6 +8,7 @@ object Contact {
     fun message(category: String, account: UserAccount?): String = buildString {
         append("Hola 🌙, me interesa: ").append(category).append(".")
         if (account != null) {
+            if (account.fullName.isNotBlank()) append("\nNombre: ").append(account.fullName)
             append("\nCorreo: ").append(account.email)
             append("\nTeléfono: ").append(account.phone)
         }
