@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.sp
 fun HomeScreen(navigate: (Screen) -> Unit) {
     val time by rememberShaderTime()
     val moon = remember { Moon.phase() }
+    val uriHandler = LocalUriHandler.current
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(160.dp),
@@ -97,7 +99,11 @@ fun HomeScreen(navigate: (Screen) -> Unit) {
                     .fillMaxWidth()
                     .aspectRatio(0.9f)
                     .clip(RoundedCornerShape(24.dp))
-                    .clickable { navigate(category.screen) },
+                    .clickable {
+                        navigate(category.screen)
+                        // Abre WhatsApp con el aviso ya escrito para el número de contacto.
+                        runCatching { uriHandler.openUri(Contact.whatsappUrl(category.title, AccountRepository.current())) }
+                    },
             ) {
                 ShaderSurface(category.effect, { time }, { null }, Modifier.matchParentSize())
                 Box(

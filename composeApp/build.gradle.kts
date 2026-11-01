@@ -56,12 +56,25 @@ android {
         applicationId = "com.lunamistica.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 3
+        versionName = "3.0"
     }
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
+
+    // Firma fija guardada en el repositorio: así cada APK nuevo puede instalarse
+    // encima del anterior (si cada compilación usara una clave distinta, Android
+    // rechaza la actualización con "No se instaló la app").
+    // Para publicar en Google Play usa una clave privada que NO esté en el repositorio.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("signing/luna-debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
 
     buildTypes {
         getByName("release") {
