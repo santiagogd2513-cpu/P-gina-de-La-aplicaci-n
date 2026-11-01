@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
 /** Pantallas de la app. */
@@ -26,24 +29,34 @@ sealed interface Screen {
 fun App() {
     LunaTheme {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            val stack = remember { mutableStateListOf<Screen>(Screen.Home) }
-            val navigate: (Screen) -> Unit = { stack.add(it) }
-            val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
-
-            PlatformBackHandler(enabled = stack.size > 1, onBack = back)
-
-            when (val screen = stack.last()) {
-                Screen.Home -> HomeScreen(navigate)
-                Screen.Tarot -> TarotScreen(back)
-                Screen.Pendulum -> PendulumScreen(back)
-                Screen.Baths -> RitualListScreen(Categories.baths, Rituals.baths, back, navigate)
-                Screen.Cleansings -> RitualListScreen(Categories.cleansings, Rituals.cleansings, back, navigate)
-                Screen.Prayers -> PrayerListScreen(back, navigate)
-                Screen.Numerology -> NumerologyScreen(back)
-                is Screen.RitualDetail -> RitualDetailScreen(screen.ritual, screen.effect, back, navigate)
-                is Screen.Guided -> GuidedRitualScreen(screen.ritual, screen.effect, back)
-                is Screen.PrayerDetail -> PrayerDetailScreen(screen.prayer, back)
+            var registered by remember { mutableStateOf(AccountRepository.isRegistered()) }
+            if (registered) {
+                MainNavigation()
+            } else {
+                RegistrationScreen(onRegistered = { registered = true })
             }
         }
+    }
+}
+
+@Composable
+private fun MainNavigation() {
+    val stack = remember { mutableStateListOf<Screen>(Screen.Home) }
+    val navigate: (Screen) -> Unit = { stack.add(it) }
+    val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
+
+    PlatformBackHandler(enabled = stack.size > 1, onBack = back)
+
+    when (val screen = stack.last()) {
+        Screen.Home -> HomeScreen(navigate)
+        Screen.Tarot -> TarotScreen(back)
+        Screen.Pendulum -> PendulumScreen(back)
+        Screen.Baths -> RitualListScreen(Categories.baths, Rituals.baths, back, navigate)
+        Screen.Cleansings -> RitualListScreen(Categories.cleansings, Rituals.cleansings, back, navigate)
+        Screen.Prayers -> PrayerListScreen(back, navigate)
+        Screen.Numerology -> NumerologyScreen(back)
+        is Screen.RitualDetail -> RitualDetailScreen(screen.ritual, screen.effect, back, navigate)
+        is Screen.Guided -> GuidedRitualScreen(screen.ritual, screen.effect, back)
+        is Screen.PrayerDetail -> PrayerDetailScreen(screen.prayer, back)
     }
 }
