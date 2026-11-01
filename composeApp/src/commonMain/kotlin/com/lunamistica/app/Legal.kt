@@ -10,7 +10,7 @@ object Legal {
      * Versión de los textos. Si se cambia, a quien ya aceptó una versión anterior
      * se le vuelven a mostrar para que los acepte de nuevo.
      */
-    const val VERSION = "1.0"
+    const val VERSION = "1.1"
     const val UPDATED = "1 de noviembre de 2026"
     private const val CONTACT = "WhatsApp +57 316 010 0727"
 
@@ -60,7 +60,18 @@ object Legal {
                 ),
             ),
             LegalSection(
-                "6. Uso permitido",
+                "6. Planes y pagos",
+                listOf(
+                    "La App ofrece un plan gratuito, con un número limitado de lecturas de tarot cada cierto tiempo, " +
+                        "y un plan Premium mensual con lecturas ilimitadas. El precio vigente se muestra en la App antes de pagar.",
+                    "Los pagos se procesan a través de una pasarela de pagos externa. Luna Mística no recibe ni guarda los " +
+                        "datos de tu tarjeta o cuenta bancaria.",
+                    "Premium dura el periodo pagado (30 días). Si no se renueva, la cuenta vuelve al plan gratuito.",
+                    "Las solicitudes de reembolso o los problemas con un pago se atienden por $CONTACT.",
+                ),
+            ),
+            LegalSection(
+                "7. Uso permitido",
                 listOf(
                     "No puedes copiar, vender o distribuir el contenido de la App, ni intentar modificarla, " +
                         "descompilarla o usarla con fines ilegales.",
@@ -68,22 +79,22 @@ object Legal {
                 ),
             ),
             LegalSection(
-                "7. Disponibilidad y cambios",
+                "8. Disponibilidad y cambios",
                 listOf(
-                    "La App se ofrece gratis y \"tal cual\". Podemos actualizarla, cambiar su contenido o suspenderla " +
+                    "La App se ofrece \"tal cual\". Podemos actualizarla, cambiar su contenido o suspenderla " +
                         "en cualquier momento.",
                     "Podemos modificar estos Términos. Si lo hacemos, te los mostraremos de nuevo en la App para que los aceptes.",
                 ),
             ),
             LegalSection(
-                "8. Limitación de responsabilidad",
+                "9. Limitación de responsabilidad",
                 listOf(
                     "En la medida que lo permita la ley, Luna Mística no será responsable por daños derivados del uso " +
                         "o de la imposibilidad de uso de la App, ni de las decisiones tomadas a partir de su contenido.",
                 ),
             ),
             LegalSection(
-                "9. Contacto y ley aplicable",
+                "10. Contacto y ley aplicable",
                 listOf(
                     "Para dudas sobre estos Términos escríbenos por $CONTACT.",
                     "Estos Términos se rigen por las leyes de la República de Colombia.",

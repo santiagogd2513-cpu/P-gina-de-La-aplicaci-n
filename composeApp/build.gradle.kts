@@ -56,8 +56,8 @@ android {
         applicationId = "com.lunamistica.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 6
-        versionName = "6.0"
+        versionCode = 7
+        versionName = "7.0"
     }
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")

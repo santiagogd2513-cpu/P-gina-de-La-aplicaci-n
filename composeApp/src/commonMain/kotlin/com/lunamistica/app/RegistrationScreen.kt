@@ -86,6 +86,9 @@ fun RegistrationScreen(onRegistered: () -> Unit, onLogin: () -> Unit) {
     var submitted2 by remember { mutableStateOf(false) }
 
     var step by remember { mutableStateOf(1) }
+    // Paso 3: plan elegido ("premium" o "free") y si se está en la pantalla de pago.
+    var plan by remember { mutableStateOf<String?>(null) }
+    var paying by remember { mutableStateOf(false) }
     val existingAccount = remember { AccountRepository.isRegistered() }
     val focus = LocalFocusManager.current
     val time by rememberShaderTime(speed = 0.6f)
@@ -110,7 +113,7 @@ fun RegistrationScreen(onRegistered: () -> Unit, onLogin: () -> Unit) {
         step = 2
     }
 
-    fun toTerms() {
+    fun toPlans() {
         submitted2 = true
         if (!step2Valid) return
         focus.clearFocus()
@@ -124,11 +127,12 @@ fun RegistrationScreen(onRegistered: () -> Unit, onLogin: () -> Unit) {
             Profile(firstName, lastName, LocalDate(year.toInt(), month.toInt(), day.toInt()), gender!!),
         )
         AccountRepository.acceptTerms()
+        if (plan == "premium") PlanRepository.activatePremium() else PlanRepository.chooseFree()
         onRegistered()
     }
 
-    // En los pasos 2 y 3, el botón atrás del sistema vuelve al paso anterior.
-    PlatformBackHandler(enabled = step > 1) { step-- }
+    // El botón atrás del sistema vuelve al paso anterior (o sale de la pantalla de pago).
+    PlatformBackHandler(enabled = step > 1) { if (step == 3 && paying) paying = false else step-- }
 
     val passwordTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation()
 
@@ -157,6 +161,7 @@ fun RegistrationScreen(onRegistered: () -> Unit, onLogin: () -> Unit) {
                     when (step) {
                         1 -> "Bienvenida a Luna Mística"
                         2 -> "Cuéntanos sobre ti"
+                        3 -> if (paying) "Pago" else "Elige tu plan"
                         else -> "Términos y privacidad"
                     },
                     style = MaterialTheme.typography.headlineSmall,
@@ -168,6 +173,7 @@ fun RegistrationScreen(onRegistered: () -> Unit, onLogin: () -> Unit) {
                     when (step) {
                         1 -> "Crea tu cuenta para comenzar"
                         2 -> "Así personalizamos tus lecturas"
+                        3 -> if (paying) "Elige tu medio de pago" else "Desbloquea todo con Premium"
                         else -> "Lee y acepta para comenzar"
                     },
                     style = MaterialTheme.typography.bodyMedium,
@@ -182,12 +188,12 @@ fun RegistrationScreen(onRegistered: () -> Unit, onLogin: () -> Unit) {
                 .windowInsetsPadding(WindowInsets.navigationBars),
         ) {
             Text(
-                "Paso $step de 3",
+                "Paso $step de 4",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
             )
             Spacer(Modifier.height(6.dp))
-            LinearProgressIndicator(progress = { step / 3f }, modifier = Modifier.fillMaxWidth())
+            LinearProgressIndicator(progress = { step / 4f }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(12.dp))
 
             if (step == 1) {
@@ -316,13 +322,28 @@ fun RegistrationScreen(onRegistered: () -> Unit, onLogin: () -> Unit) {
                     OutlinedButton(onClick = { step = 1 }, modifier = Modifier.weight(1f).height(52.dp)) {
                         Text("Atrás")
                     }
-                    Button(onClick = ::toTerms, modifier = Modifier.weight(1.6f).height(52.dp)) {
+                    Button(onClick = ::toPlans, modifier = Modifier.weight(1.6f).height(52.dp)) {
                         Text("Siguiente", style = MaterialTheme.typography.titleMedium)
                     }
                 }
                 if (submitted2 && !step2Valid) ErrorHint()
+            } else if (step == 3) {
+                if (paying) {
+                    PaymentContent(
+                        onPaid = { plan = "premium"; paying = false; step = 4 },
+                        onBack = { paying = false },
+                    )
+                } else {
+                    PlanChooser(
+                        onBuy = { paying = true },
+                        onFree = { plan = "free"; step = 4 },
+                    )
+                    OutlinedButton(onClick = { step = 2 }, modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(48.dp)) {
+                        Text("Atrás")
+                    }
+                }
             } else {
-                TermsAcceptance(onStart = ::finish, onBack = { step = 2 })
+                TermsAcceptance(onStart = ::finish, onBack = { step = 3 })
             }
 
             Spacer(Modifier.height(12.dp))

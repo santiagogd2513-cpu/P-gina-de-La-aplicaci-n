@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.lunamistica.app
 
 import androidx.compose.foundation.background
@@ -93,6 +95,39 @@ fun HomeScreen(navigate: (Screen) -> Unit, onLogout: () -> Unit) {
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+        }
+
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            val premium = remember { PlanRepository.isPremium() }
+            Card(
+                onClick = { navigate(Screen.Premium) },
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (premium) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+            ) {
+                Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(if (premium) "👑" else "✨", fontSize = 24.sp)
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            if (premium) "Plan Premium activo" else "Plan gratuito",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            if (premium) "Lecturas ilimitadas hasta el ${PlanRepository.premiumUntil()}"
+                            else "${Plans.FREE_READINGS} lecturas de tarot cada ${Plans.FREE_WINDOW_HOURS} horas",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    if (!premium) {
+                        Text("Mejorar →", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                    }
+                }
             }
         }
 

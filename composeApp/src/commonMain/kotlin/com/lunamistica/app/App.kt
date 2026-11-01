@@ -24,6 +24,7 @@ sealed interface Screen {
     data class Guided(val ritual: Ritual, val effect: ShaderEffect) : Screen
     data class PrayerDetail(val prayer: Prayer) : Screen
     data object LegalInfo : Screen
+    data object Premium : Screen
 }
 
 @Composable
@@ -75,7 +76,7 @@ private fun MainNavigation(onLogout: () -> Unit) {
 
     when (val screen = stack.last()) {
         Screen.Home -> HomeScreen(navigate, onLogout)
-        Screen.Tarot -> TarotScreen(back)
+        Screen.Tarot -> TarotScreen(back) { navigate(Screen.Premium) }
         Screen.Pendulum -> PendulumScreen(back)
         Screen.Baths -> RitualListScreen(Categories.baths, Rituals.baths, back, navigate)
         Screen.Cleansings -> RitualListScreen(Categories.cleansings, Rituals.cleansings, back, navigate)
@@ -85,5 +86,6 @@ private fun MainNavigation(onLogout: () -> Unit) {
         is Screen.Guided -> GuidedRitualScreen(screen.ritual, screen.effect, back)
         is Screen.PrayerDetail -> PrayerDetailScreen(screen.prayer, back)
         Screen.LegalInfo -> LegalReadScreen(back)
+        Screen.Premium -> PremiumScreen(back)
     }
 }

@@ -67,13 +67,24 @@ private fun drawSpread(spread: Spread): List<DrawnCard> {
 }
 
 @Composable
-fun TarotScreen(onBack: () -> Unit) {
+fun TarotScreen(onBack: () -> Unit, onPremium: () -> Unit) {
     var spread by remember { mutableStateOf(Spread.Daily) }
     var question by remember { mutableStateOf("") }
     var drawn by remember { mutableStateOf<List<DrawnCard>>(emptyList()) }
     val revealed = remember { mutableStateListOf<Int>() }
 
+    // Plan gratuito: lecturas restantes en la ventana de 6 horas (null = Premium, ilimitadas).
+    var remaining by remember { mutableStateOf(PlanRepository.remainingReadings()) }
+    var waitUntil by remember { mutableStateOf<Long?>(null) }
+
     fun deal() {
+        if (!PlanRepository.tryConsumeReading()) {
+            waitUntil = PlanRepository.nextReadingAt()
+            drawn = emptyList()
+            return
+        }
+        waitUntil = null
+        remaining = PlanRepository.remainingReadings()
         revealed.clear()
         drawn = drawSpread(spread)
     }
@@ -110,6 +121,40 @@ fun TarotScreen(onBack: () -> Unit) {
                 Spacer(Modifier.height(12.dp))
                 Button(onClick = ::deal, modifier = Modifier.fillMaxWidth()) {
                     Text(if (spread == Spread.Daily) "Ver mi carta del día" else "Barajar y tirar las cartas")
+                }
+                remaining?.let { left ->
+                    Text(
+                        "Plan gratuito: te quedan $left de ${Plans.FREE_READINGS} lecturas " +
+                            "(se renuevan cada ${Plans.FREE_WINDOW_HOURS} horas).",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 6.dp),
+                    )
+                }
+                waitUntil?.let { until ->
+                    Spacer(Modifier.height(10.dp))
+                    Card(
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text(
+                                "✋ Ya usaste tus ${Plans.FREE_READINGS} lecturas gratis",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                            Text(
+                                "Tu próxima lectura gratis estará disponible en " +
+                                    FreeLimit.formatWait(until - nowMillis()) + ". " +
+                                    "Con Premium tienes lecturas ilimitadas por ${Plans.priceLabel} COP al mes.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                            Spacer(Modifier.height(10.dp))
+                            Button(onClick = onPremium, modifier = Modifier.fillMaxWidth()) { Text("👑 Hazte Premium") }
+                        }
+                    }
                 }
             }
         }
