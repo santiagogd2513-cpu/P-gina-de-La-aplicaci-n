@@ -21,28 +21,28 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Probar shaders (escritorio)
+      - name: Pruebas (shaders y numerología)
         run: ./gradlew :composeApp:desktopTest --console=plain
 
       - name: Compilar APK
         run: ./gradlew :composeApp:assembleDebug --console=plain
 
       - name: Renombrar APK
-        run: cp composeApp/build/outputs/apk/debug/composeApp-debug.apk Shader-${{ github.run_number }}.apk
+        run: cp composeApp/build/outputs/apk/debug/composeApp-debug.apk LunaMistica-${{ github.run_number }}.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Shader-apk
-          path: Shader-${{ github.run_number }}.apk
+          name: LunaMistica-apk
+          path: LunaMistica-${{ github.run_number }}.apk
 
       - name: Publicar en Releases
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-${{ github.run_number }}
-          name: Shader APK #${{ github.run_number }}
+          name: Luna Mística APK #${{ github.run_number }}
           target_commitish: ${{ github.sha }}
           prerelease: true
           body: |
             APK de prueba (debug) generado automáticamente desde `${{ github.ref_name }}` (${{ github.sha }}).
             Descárgalo en tu Android, permite "instalar apps de origen desconocido" y ábrelo.
-          files: Shader-${{ github.run_number }}.apk
+          files: LunaMistica-${{ github.run_number }}.apk

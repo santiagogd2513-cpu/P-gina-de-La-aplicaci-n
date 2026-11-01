@@ -1,4 +1,4 @@
-package com.shader.app
+package com.lunamistica.app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

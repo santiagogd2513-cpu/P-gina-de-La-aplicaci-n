@@ -1,4 +1,4 @@
-package com.shader.app
+package com.lunamistica.app
 
 import androidx.compose.ui.graphics.Color
 
@@ -202,5 +202,34 @@ half4 main(float2 fc) {
 """,
     )
 
-    val all = listOf(plasma, tunnel, aurora, metaballs, julia, fire)
+    val cosmos = ShaderEffect(
+        id = "cosmos",
+        name = "Cosmos",
+        description = "Nebulosa estelar con un brillo dorado en el centro.",
+        palette = listOf(Color(0xFF0D0620), Color(0xFF6B3FA0), Color(0xFFF2C66D)),
+        body = """
+half4 main(float2 fc) {
+    float2 p = centered(fc);
+    float3 col = float3(0.03, 0.01, 0.08);
+    float2 q = p * 3.0;
+    float n = 0.0;
+    for (int i = 0; i < 4; i++) {
+        float fi = float(i);
+        q = float2(q.x * 0.765 - q.y * 0.644, q.x * 0.644 + q.y * 0.765) * 1.3
+          + float2(sin(iTime * 0.1 + fi), cos(iTime * 0.13 + fi));
+        n += sin(q.x + iTime * 0.2) * cos(q.y) / (1.0 + fi);
+    }
+    col += float3(0.35, 0.12, 0.55) * smoothstep(-0.5, 1.5, n);
+    col += float3(0.05, 0.18, 0.4) * smoothstep(0.0, 2.0, -n);
+    float2 g = floor(fc / 3.0);
+    float h = fract(sin(dot(g, float2(12.9898, 78.233))) * 43758.5453);
+    float tw = 0.5 + 0.5 * sin(iTime * 2.0 + h * 50.0);
+    col += step(0.996, h) * tw;
+    col += float3(0.9, 0.7, 0.3) * 0.012 / (length(p) + 0.05);
+    return half4(half3(clamp(col, 0.0, 1.0)), 1.0);
+}
+""",
+    )
+
+    val all = listOf(plasma, tunnel, aurora, metaballs, julia, fire, cosmos)
 }

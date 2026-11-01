@@ -1,4 +1,4 @@
-package com.shader.app
+package com.lunamistica.app
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -8,7 +8,7 @@ import androidx.compose.ui.window.rememberWindowState
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Shader",
+        title = "Luna Mística",
         state = rememberWindowState(width = 420.dp, height = 820.dp),
     ) {
         App()

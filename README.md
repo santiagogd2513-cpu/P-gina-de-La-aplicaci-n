@@ -1,21 +1,33 @@
-# Shader
+# Luna Mística
 
-Galería de efectos visuales en tiempo real (shaders), hecha con **Kotlin + Compose Multiplatform**.
-Un solo código para **Android**, **escritorio** (Windows / macOS / Linux) e **iOS**.
+App de bienestar espiritual hecha con **Kotlin + Compose Multiplatform**: un solo código para
+**Android**, **escritorio** (Windows / macOS / Linux) e **iOS**.
+Se adapta automáticamente al **modo claro u oscuro del sistema**.
 
-Efectos incluidos: Plasma, Túnel, Aurora, Metabolas, Fractal (Julia) y Fuego.
-En la vista de detalle puedes tocar o arrastrar para interactuar, cambiar la velocidad y pausar.
+## Secciones
+
+| Sección | Qué incluye |
+|---|---|
+| 🔮 **Tarot** | Los 22 Arcanos Mayores con significado al derecho e invertido. Tiradas: carta del día, una carta, pasado·presente·futuro y amor. Las cartas se giran con animación. |
+| 💎 **Péndulo** | Pregunta de sí / no con un péndulo animado, y alineación energética de los 7 chakras (lectura, recomendaciones y armonización). |
+| 🛁 **Baños** | 7 baños rituales (prosperidad, amor propio, protección, descarga, paz, abrir caminos, buena suerte) con lista de materiales marcable, pasos y modo guiado. |
+| 🙏 **Rezos** | 8 oraciones, con vela virtual que se enciende y contador de repeticiones. |
+| 🌿 **Limpiezas** | 6 limpiezas energéticas (sahumerio, sal, huevo, vela, cristales, respiración) con modo guiado. |
+| 🔢 **Numerología** | Camino de vida, expresión, alma, personalidad, día de nacimiento y año personal (sistema pitagórico, con números maestros). |
+
+La pantalla de inicio muestra además la **fase lunar del día** y qué tipo de ritual le favorece.
+Los fondos animados son shaders (AGSL en Android 13+, SkSL en escritorio e iOS).
 
 ## Descargar el APK (Android)
 
 Cada push compila el APK automáticamente con GitHub Actions:
 
 1. Ve a la pestaña **Releases** del repositorio (o **Actions → Build APK → Artifacts**).
-2. Descarga `Shader-N.apk` en tu teléfono.
+2. Descarga `LunaMistica-N.apk` en el teléfono.
 3. Ábrelo y permite *instalar apps de origen desconocido* cuando Android lo pida.
 
-> Los shaders en tiempo real (AGSL) requieren **Android 13 o superior**. En Android 7–12 la app
-> funciona igual, pero muestra una versión simplificada de cada efecto.
+> Funciona desde Android 7. Los fondos animados completos requieren Android 13 o superior;
+> en versiones anteriores se muestra un degradado animado más sencillo.
 
 ## Compilar en tu computadora
 
@@ -25,7 +37,7 @@ Requisitos: JDK 17+ y Android SDK (Android Studio lo instala).
 ./gradlew :composeApp:assembleDebug     # APK -> composeApp/build/outputs/apk/debug/
 ./gradlew :composeApp:installDebug      # instala en un teléfono conectado por USB
 ./gradlew :composeApp:run               # versión de escritorio
-./gradlew :composeApp:desktopTest       # compila todos los shaders y genera vistas previas
+./gradlew :composeApp:desktopTest       # pruebas (shaders, numerología, fase lunar)
 ```
 
 **iOS** (requiere Mac con Xcode): el módulo genera el framework `ComposeApp`; desde Swift se usa
@@ -35,12 +47,14 @@ Requisitos: JDK 17+ y Android SDK (Android Studio lo instala).
 ## Estructura
 
 ```
-composeApp/src/
-  commonMain/   UI compartida (App.kt) y el código de los shaders (ShaderLibrary.kt)
-  androidMain/  MainActivity y render con AGSL (android.graphics.RuntimeShader)
-  desktopMain/  ventana de escritorio y render con Skia (SkSL)
-  iosMain/      punto de entrada iOS y render con Skia (SkSL)
+composeApp/src/commonMain/kotlin/com/lunamistica/app/
+  App.kt, Theme.kt, HomeScreen.kt      navegación, tema claro/oscuro, inicio
+  TarotData.kt, TarotScreen.kt          tarot
+  PendulumScreen.kt                     péndulo y chakras
+  RitualsData.kt, RitualScreens.kt      baños, limpiezas y rezos (contenido y pantallas)
+  Numerology.kt, NumerologyScreen.kt    numerología
+  MoonPhase.kt                          fase lunar
+  ShaderLibrary.kt                      fondos animados
 ```
 
-Los shaders están escritos una sola vez: AGSL y SkSL comparten sintaxis.
-Para añadir un efecto, agrega un `ShaderEffect` en `ShaderLibrary.kt` y súmalo a `ShaderLibrary.all`.
+Para añadir contenido (un baño, una oración, etc.) basta con editar `RitualsData.kt`.

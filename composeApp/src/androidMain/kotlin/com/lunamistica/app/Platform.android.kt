@@ -1,4 +1,4 @@
-package com.shader.app
+package com.lunamistica.app
 
 import android.graphics.RuntimeShader
 import android.os.Build

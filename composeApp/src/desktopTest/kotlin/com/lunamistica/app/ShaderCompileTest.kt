@@ -1,4 +1,4 @@
-package com.shader.app
+package com.lunamistica.app
 
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Paint

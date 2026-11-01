@@ -1,4 +1,4 @@
-package com.shader.app
+package com.lunamistica.app
 
 import androidx.compose.ui.window.ComposeUIViewController
 

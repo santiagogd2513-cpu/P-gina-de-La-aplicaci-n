@@ -1,5 +1,6 @@
-package com.shader.app
+package com.lunamistica.app
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,5 +11,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent { App() }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Al cambiar entre modo claro y oscuro, actualiza el color de los íconos de la barra de estado.
+        enableEdgeToEdge()
     }
 }

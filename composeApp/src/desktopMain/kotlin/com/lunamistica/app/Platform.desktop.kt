@@ -1,4 +1,4 @@
-package com.shader.app
+package com.lunamistica.app
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import org.jetbrains.skia.RuntimeEffect
 import org.jetbrains.skia.RuntimeShaderBuilder
 
-actual val platformName: String = "iOS"
+actual val platformName: String = "Escritorio (${System.getProperty("os.name")})"
 
 actual val supportsRuntimeShaders: Boolean = true
 
