@@ -87,6 +87,8 @@ object AccountRepository {
     private const val KEY_LAST_NAME = "account_last_name"
     private const val KEY_BIRTH_DATE = "account_birth_date"
     private const val KEY_GENDER = "account_gender"
+    private const val KEY_TERMS_VERSION = "terms_accepted_version"
+    private const val KEY_TERMS_DATE = "terms_accepted_date"
     private const val ITERATIONS = 10_000
 
     /** El registro está completo solo si se guardaron los dos pasos. */
@@ -119,6 +121,17 @@ object AccountRepository {
         // Se guarda al final: marca el registro como completo.
         KeyValueStore.putString(KEY_FIRST_NAME, profile.firstName.trim())
     }
+
+    /** true si se aceptó la versión actual de los Términos y la Política de Privacidad. */
+    fun hasAcceptedCurrentTerms(): Boolean = KeyValueStore.getString(KEY_TERMS_VERSION) == Legal.VERSION
+
+    fun acceptTerms() {
+        KeyValueStore.putString(KEY_TERMS_DATE, today().toString())
+        KeyValueStore.putString(KEY_TERMS_VERSION, Legal.VERSION)
+    }
+
+    /** Fecha (AAAA-MM-DD) en que se aceptaron los textos, o null. */
+    fun termsAcceptedOn(): String? = KeyValueStore.getString(KEY_TERMS_DATE)
 
     fun checkPassword(password: String): Boolean {
         val salt = KeyValueStore.getString(KEY_SALT) ?: return false

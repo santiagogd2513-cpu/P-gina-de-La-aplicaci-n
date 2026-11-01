@@ -23,6 +23,7 @@ sealed interface Screen {
     data class RitualDetail(val ritual: Ritual, val effect: ShaderEffect) : Screen
     data class Guided(val ritual: Ritual, val effect: ShaderEffect) : Screen
     data class PrayerDetail(val prayer: Prayer) : Screen
+    data object LegalInfo : Screen
 }
 
 @Composable
@@ -30,10 +31,12 @@ fun App() {
     LunaTheme {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             var registered by remember { mutableStateOf(AccountRepository.isRegistered()) }
-            if (registered) {
-                MainNavigation()
-            } else {
-                RegistrationScreen(onRegistered = { registered = true })
+            var termsAccepted by remember { mutableStateOf(AccountRepository.hasAcceptedCurrentTerms()) }
+            when {
+                !registered -> RegistrationScreen(onRegistered = { registered = true; termsAccepted = true })
+                // Quien ya tenía cuenta (o si cambian los textos) debe aceptar antes de seguir.
+                !termsAccepted -> TermsUpdateScreen(onAccepted = { termsAccepted = true })
+                else -> MainNavigation()
             }
         }
     }
@@ -58,5 +61,6 @@ private fun MainNavigation() {
         is Screen.RitualDetail -> RitualDetailScreen(screen.ritual, screen.effect, back, navigate)
         is Screen.Guided -> GuidedRitualScreen(screen.ritual, screen.effect, back)
         is Screen.PrayerDetail -> PrayerDetailScreen(screen.prayer, back)
+        Screen.LegalInfo -> LegalReadScreen(back)
     }
 }

@@ -109,19 +109,25 @@ fun RegistrationScreen(onRegistered: () -> Unit) {
         step = 2
     }
 
-    fun finish() {
+    fun toTerms() {
         submitted2 = true
         if (!step2Valid) return
         focus.clearFocus()
+        step = 3
+    }
+
+    fun finish() {
+        if (!step1Valid || !step2Valid) return
         AccountRepository.register(
             Credentials(email, country, phone, password),
             Profile(firstName, lastName, LocalDate(year.toInt(), month.toInt(), day.toInt()), gender!!),
         )
+        AccountRepository.acceptTerms()
         onRegistered()
     }
 
-    // En el paso 2, el botón atrás del sistema vuelve al paso 1.
-    PlatformBackHandler(enabled = step == 2) { step = 1 }
+    // En los pasos 2 y 3, el botón atrás del sistema vuelve al paso anterior.
+    PlatformBackHandler(enabled = step > 1) { step-- }
 
     val passwordTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation()
 
@@ -147,14 +153,22 @@ fun RegistrationScreen(onRegistered: () -> Unit) {
             ) {
                 Text("🌙", fontSize = 40.sp)
                 Text(
-                    if (step == 1) "Bienvenida a Luna Mística" else "Cuéntanos sobre ti",
+                    when (step) {
+                        1 -> "Bienvenida a Luna Mística"
+                        2 -> "Cuéntanos sobre ti"
+                        else -> "Términos y privacidad"
+                    },
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     textAlign = TextAlign.Center,
                 )
                 Text(
-                    if (step == 1) "Crea tu cuenta para comenzar" else "Así personalizamos tus lecturas",
+                    when (step) {
+                        1 -> "Crea tu cuenta para comenzar"
+                        2 -> "Así personalizamos tus lecturas"
+                        else -> "Lee y acepta para comenzar"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.85f),
                 )
@@ -167,12 +181,12 @@ fun RegistrationScreen(onRegistered: () -> Unit) {
                 .windowInsetsPadding(WindowInsets.navigationBars),
         ) {
             Text(
-                "Paso $step de 2",
+                "Paso $step de 3",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
             )
             Spacer(Modifier.height(6.dp))
-            LinearProgressIndicator(progress = { step / 2f }, modifier = Modifier.fillMaxWidth())
+            LinearProgressIndicator(progress = { step / 3f }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(12.dp))
 
             if (step == 1) {
@@ -238,7 +252,7 @@ fun RegistrationScreen(onRegistered: () -> Unit) {
                     Text("Siguiente", style = MaterialTheme.typography.titleMedium)
                 }
                 if (submitted1 && !step1Valid) ErrorHint()
-            } else {
+            } else if (step == 2) {
                 RegistrationField(
                     value = firstName,
                     onChange = { firstName = it },
@@ -289,11 +303,13 @@ fun RegistrationScreen(onRegistered: () -> Unit) {
                     OutlinedButton(onClick = { step = 1 }, modifier = Modifier.weight(1f).height(52.dp)) {
                         Text("Atrás")
                     }
-                    Button(onClick = ::finish, modifier = Modifier.weight(1.6f).height(52.dp)) {
-                        Text("Crear cuenta", style = MaterialTheme.typography.titleMedium)
+                    Button(onClick = ::toTerms, modifier = Modifier.weight(1.6f).height(52.dp)) {
+                        Text("Siguiente", style = MaterialTheme.typography.titleMedium)
                     }
                 }
                 if (submitted2 && !step2Valid) ErrorHint()
+            } else {
+                TermsAcceptance(onStart = ::finish, onBack = { step = 2 })
             }
 
             Spacer(Modifier.height(12.dp))
